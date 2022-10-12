@@ -12,7 +12,11 @@
 }
 
 .btn-green {
-    @apply text-xl text-snow p-2 bg-persian text-center;
+    @apply text-xl text-snow p-2 bg-persian text-center disabled:bg-slate-300;
+}
+
+input[type=text] {
+    @apply border-2
 }
 
 .pg {
@@ -21,4 +25,12 @@
 
 .content-container {
     @apply container border-2 border-persian p-2;
+}
+
+.transtable tbody tr td {
+    @apply px-2
+}
+
+.transtable thead tr th {
+    @apply px-2
 }
