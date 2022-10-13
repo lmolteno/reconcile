@@ -8,6 +8,8 @@ import {Categories} from "./components/Categories";
 import {filterData, transformKiwibank} from "./utils";
 import {db} from "./db";
 import {Rules} from "./components/Rules";
+import {ColouredTransactionTable} from "./components/ColouredTransactionTable";
+import {Summary} from "./components/Summary";
 
 const App = () => {
   const [files, setFiles] = useState<File[]>();
@@ -92,7 +94,9 @@ const App = () => {
           unmergedData?.length && <MergeFiles file={unmergedData[0]} onExcludeChange={setExcluded} />,
           <Categories />,
           <Rules />,
-          <ReconcileTransactions />
+          <ReconcileTransactions />,
+          <ColouredTransactionTable />,
+          <Summary />
          ][step]
         }
 
@@ -104,6 +108,8 @@ const App = () => {
               <button className="btn-green w-100" onClick={() => setStep(2)} disabled={step == 2}>Categories</button>
               <button className="btn-green w-100" onClick={() => setStep(3)} disabled={step == 3}>Rules</button>
               <button className="btn-green w-100" onClick={() => setStep(4)} disabled={step == 4}>Reconcile</button>
+              <button className="btn-green w-100" onClick={() => setStep(5)} disabled={step == 5}>All Transactions</button>
+              <button className="btn-green w-100" onClick={() => setStep(6)} disabled={step == 6}>Summary</button>
             </div>) :
           <label htmlFor="csv-upload" className="btn-green cursor-pointer">Upload your statements</label>
         }

@@ -12,10 +12,12 @@
     "dexie": "^3.2.2",
     "dexie-react-hooks": "^1.1.1",
     "fecha": "^4.2.3",
+    "konva": "^8.3.13",
     "papaparse": "^5.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.4.0"
+    "react-icons": "^4.4.0",
+    "react-konva": "^18.2.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",
