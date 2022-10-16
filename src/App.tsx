@@ -5,121 +5,118 @@ import {FileList} from "./components/FileList";
 import {MergeFiles} from "./components/MergeFiles";
 import {ReconcileTransactions} from "./components/ReconcileTransactions";
 import {Categories} from "./components/Categories";
-import {filterData, transformKiwibank} from "./utils";
 import {db} from "./db";
 import {Rules} from "./components/Rules";
 import {ColouredTransactionTable} from "./components/ColouredTransactionTable";
 import {Summary} from "./components/Summary";
+import {useLiveQuery} from "dexie-react-hooks";
+import {cssTransition, Slide, toast, ToastContainer} from "react-toastify";
+
+import 'react-toastify/dist/ReactToastify.css';
+
+enum Step {
+  UPLOAD,
+  MANAGE,
+  CATEGORIES,
+  RULES,
+  RECONCILE,
+  ALL,
+  SUMMARY
+}
 
 const App = () => {
-  const [files, setFiles] = useState<File[]>();
-  const [step, setStep] = useState(0);
-  const [pastDataExists, setPastDataExists] = useState(false);
-  const [unmergedData, setUnmergedData] = useState<UnmergedData[]>();
-  const [excluded, setExcluded] = useState<RegExp>();
-
-  db.transactions.count().then(c => {
-    if (c > 0) setPastDataExists(true);
-  });
+  const [step, setStep] = useState<Step>(Step.UPLOAD);
+  const pastDataExists = useLiveQuery(() => db.transactions.count());
+  const importedFiles = useLiveQuery(() => db.files.toArray()) || [];
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files.length) {
+    if (e.target.files?.length) {
       const filesArray = Array.from(e.target.files);
-      setFiles(files?.concat(...filesArray) || filesArray);
+      filesArray.filter(f => importedFiles?.every(impF => impF.name !== f.name)) // Ignore already imported files
+        .forEach(readData)
     }
   }
 
-  const parseFile = async (target) => {
-    const csv = Papa.parse(target.result, { header: true });
-    return csv?.data;
-  }
-
-  const readData = () => {
-    setUnmergedData([]);
-    files?.forEach(f => {
-      const reader = new FileReader();
-      reader.onload = async ({target}) => {
-        const parsedData = await parseFile(target);
-        const newDataObject: UnmergedData = {
+  const readData = (f: File) => {
+    Papa.parse(f, {
+      header: true, complete: results => {
+        const importedFile: ImportedFile = {
           name: f.name,
-          rawData: parsedData,
-          data: transformKiwibank(parsedData),
-          columns: Object.keys(parsedData[0])
-        };
-        setUnmergedData(unmergedData ? [...unmergedData, newDataObject] : [newDataObject]);
+          rawData: results.data,
+          // @ts-ignore
+          columns: Object.keys(results.data[0])
+        }
+        db.files.add(importedFile);
       }
-      reader.readAsText(f);
     });
   }
 
-  const addToMergedData = async () => {
-    if (unmergedData) {
-      const filteredData = filterData(unmergedData[0].data, excluded);
-      await db.transactions.bulkAdd(filteredData);
-      setUnmergedData(unmergedData.splice(1));
-    } else {
-      setStep(step + 1);
-    }
-  }
-
-  const advance = async () => {
-    console.log(unmergedData, step);
-    switch(step) {
-      case 0:
-        readData();
-        setStep(step + 1);
-        break;
-      case 1:
-        if (unmergedData && unmergedData.length !== 0) await addToMergedData();
-        else setStep(step + 1);
-        break;
-      default:
-        setStep(step + 1);
-    }
-  };
-
-
-  const removeFile = (fname: string) => {
-    setFiles(files?.filter(f => f.name != fname));
-  }
   return (
-    <div className="container min-h-screen mx-auto flex flex-col py-5">
-      <div className="container my-auto flex flex-col align-content-center space-y-8">
-        <h1 className={`text-center text-8xl font-barlow text-jet transition-margin duration-500 ease-in-out`}>
-          RECONCILE
-        </h1>
-        {[!files?.length && !pastDataExists ?
-          <h2 className="text-2xl text-center transition-all">A simple tool for reconciling and categorising transactions.</h2> :
-          <FileList files={files} removeFile={removeFile} forUpload={"csv-upload"} />,
-          unmergedData?.length && <MergeFiles file={unmergedData[0]} onExcludeChange={setExcluded} />,
-          <Categories />,
-          <Rules />,
-          <ReconcileTransactions />,
-          <ColouredTransactionTable />,
-          <Summary />
-         ][step]
-        }
+    <>
+      <div className="container min-h-screen mx-auto flex flex-col py-5">
+        <div className="container my-auto flex flex-col align-content-center space-y-8">
+          <h1 className={`text-center text-8xl font-barlow text-jet transition-margin duration-500 ease-in-out`}>
+            RECONCILE
+          </h1>
+          {[!importedFiles?.length && !pastDataExists ?
+            <h2 className="text-2xl text-center transition-all">A simple tool for reconciling and categorising
+              transactions.</h2> :
+            <FileList forUpload={"csv-upload"}/>,
+            <MergeFiles/>,
+            <Categories/>,
+            <Rules/>,
+            <ReconcileTransactions/>,
+            <ColouredTransactionTable/>,
+            <Summary/>
+          ][step]
+          }
 
-        { (files?.length || pastDataExists)  ?
-          (!pastDataExists ? <button className="btn-green" onClick={advance}>Next</button>
-            : <div className={"flex justify-between"}>
-              <button className="btn-green w-100" onClick={() => setStep(0)} disabled={step == 0}>Upload Files</button>
-              <button className="btn-green w-100" onClick={() => setStep(1)} disabled={step != 0}>Merge Files</button>
-              <button className="btn-green w-100" onClick={() => setStep(2)} disabled={step == 2}>Categories</button>
-              <button className="btn-green w-100" onClick={() => setStep(3)} disabled={step == 3}>Rules</button>
-              <button className="btn-green w-100" onClick={() => setStep(4)} disabled={step == 4}>Reconcile</button>
-              <button className="btn-green w-100" onClick={() => setStep(5)} disabled={step == 5}>All Transactions</button>
-              <button className="btn-green w-100" onClick={() => setStep(6)} disabled={step == 6}>Summary</button>
-            </div>) :
-          <label htmlFor="csv-upload" className="btn-green cursor-pointer">Upload your statements</label>
-        }
-        <input onChange={handleFileChange}
-               type="file"
-               id="csv-upload"
-               className="hidden" />
+          {importedFiles?.length ?
+            <div className={"grid grid-cols-7 gap-4"}>
+              <button className="btn-green w-100" onClick={() => setStep(Step.UPLOAD)}
+                      disabled={step == Step.UPLOAD}>Upload Files
+              </button>
+              <button className="btn-green w-100" onClick={() => setStep(Step.MANAGE)}
+                      disabled={step == Step.MANAGE}>Manage Files
+              </button>
+              <button className="btn-green w-100" onClick={() => setStep(Step.CATEGORIES)}
+                      disabled={step == Step.CATEGORIES || !pastDataExists}>Categories
+              </button>
+              <button className="btn-green w-100" onClick={() => setStep(Step.RULES)}
+                      disabled={step == Step.RULES || !pastDataExists}>Rules
+              </button>
+              <button className="btn-green w-100" onClick={() => setStep(Step.RECONCILE)}
+                      disabled={step == Step.RECONCILE || !pastDataExists}>Reconcile
+              </button>
+              <button className="btn-green w-100" onClick={() => setStep(Step.ALL)}
+                      disabled={step == Step.ALL || !pastDataExists}>All Transactions
+              </button>
+              <button className="btn-green w-100" onClick={() => setStep(Step.SUMMARY)}
+                      disabled={step == Step.SUMMARY || !pastDataExists}>Summary
+              </button>
+            </div> :
+            <label htmlFor="csv-upload" className="btn-green cursor-pointer">Upload your statements</label>
+          }
+          <input onChange={handleFileChange}
+                 type="file"
+                 id="csv-upload"
+                 className="hidden"/>
+        </div>
       </div>
-    </div>
+      <ToastContainer
+        transition={FastSlide}
+        autoClose={1000}
+        hideProgressBar={true}
+      />
+    </>
   )
 }
+
+const FastSlide = cssTransition({
+  enter: 'toast_animate Toastify__slide-enter',
+  exit: 'toast_animate Toastify__slide-exit',
+  collapseDuration: 300,
+  appendPosition: true
+})
 
 export default App

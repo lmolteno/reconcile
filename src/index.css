@@ -34,3 +34,8 @@ input[type=text] {
 .transtable thead tr th {
     @apply px-2
 }
+
+.toast_animate {
+    animation-fill-mode: both;
+    animation-duration: 0.3s;
+}

@@ -21,7 +21,7 @@ export const ReconcileTransactions = () => {
         <div className={"flex space-x-3"}>
         </div>
       </div>
-      {transactions?.length > 0 ?
+      {transactions?.length ?
         <SingleTransaction t={transactions[0]} /> :
         <h2 className={"text-3xl text-center"}>All Done!</h2>
       }

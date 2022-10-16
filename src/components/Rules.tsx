@@ -23,7 +23,7 @@ export const Rules = () => {
     invalidRegexp = true;
   }
 
-  const transactions = useLiveQuery(() => (db.transactions.toArray())) || [];
+  const transactions = useLiveQuery(() => (db.transactions.orderBy('date').toArray())) || [];
 
   const currentFilteredTransactions = transactions.filter(t => t.description?.match(re) && rules.every(r => !t.description?.match(new RegExp(r.regex, 'g'))));
 
@@ -43,6 +43,7 @@ export const Rules = () => {
       {rules?.map((r, idx) => {
         const filteredTransactions = transactions.filter(t => t.description?.match(new RegExp(r.regex, 'g')));
         const category = categories.find(c => c.id == r.categoryId);
+        if (!category) return;
         return (
         <div key={idx} className={"container grid grid-cols-10 transition duration-50 hover:bg-slate-100 p-2 justify-between auto-cols-fr"}>
           <h2 className={"text-xl col-span-4"}>{r.name}</h2>

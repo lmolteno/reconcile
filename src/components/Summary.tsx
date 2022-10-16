@@ -2,6 +2,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
 import {Stage, Layer, Rect, Text, Line} from 'react-konva';
 import {MutableRefObject, useCallback, useEffect, useRef, useState} from "react";
+import {useResizeDetector} from "react-resize-detector";
 
 interface BarGraph {
   name: string;
@@ -34,17 +35,17 @@ export const Summary = () => {
     return [data, max, min];
   }, [transactions, rules, categories])();
 
-  console.log([barGraphData, maxVal, minVal])
-
   const canvasRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
-  useEffect(() => {
+  const setHeights = () => {
     setHeight(canvasRef.current?.offsetHeight || 0)
     setWidth(canvasRef.current?.offsetWidth || 0)
-  }, [canvasRef]);
+  }
+
+  useEffect(setHeights, [canvasRef.current?.offsetHeight]);
 
   const barPadding = 20;
   const barHeight = 200;
@@ -54,7 +55,7 @@ export const Summary = () => {
   const toPixels = dollars => (toProportion(dollars) * barHeight) + barPadding;
 
   return (<div className={"content-container"}>
-    <div ref={canvasRef} className={"w-full"} style={{height: barHeight + barPadding}}>
+    <div ref={canvasRef} className={"w-full"} style={{height: barHeight + 2*barPadding}} onresize={setHeights}>
       <Stage width={width} height={height}>
         <Layer>
           <Line points={[barPadding, toPixels(0), width-barPadding, toPixels(0)]} stroke={'#989898'} strokeWidth={0.5}/>
@@ -88,6 +89,8 @@ const CategoryBarGraph = ({data, minVal, maxVal, height, width, x, y}:CategoryBa
     <>
       <Rect x={x} y={y + toPixels(data.positive)} height={toPixels(0) - toPixels(data.positive)} width={width/2} fill={'#25a225'}/>
       <Rect x={x + width/2} y={y + toPixels(data.positive + data.negative)} height={toPixels(0) - toPixels(data.negative)} width={width/2} fill={'#bd2727'}/>
+      <Text text={data.name} x={x - width/2} y={y + height + 5} width={width*2} align={'center'}/>
+      {/*<Text text={`+${}`} x={x - width/2} y={y + height + 5} width={width*2} align={'center'}/>*/}
     </>
   );
 };

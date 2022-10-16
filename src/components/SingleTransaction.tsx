@@ -6,15 +6,14 @@ import {useState} from "react";
 
 interface SingleTransactionProps {
   t: Transaction;
-  onSave: () => void;
 }
 
-export const SingleTransaction = ({t, onSave}:SingleTransactionProps) => {
-  const [category, setCategory] = useState<number>();
+export const SingleTransaction = ({t}:SingleTransactionProps) => {
+  const [category, setCategory] = useState<number>(-1);
   const categories = useLiveQuery(() => db.categories.toArray());
 
   const saveTransaction = async () => {
-    await db.transactions.update({id: t.id!}, {categoryId: category});
+    await db.transactions.where('id').equals(t.id || -1).modify({categoryId: category});
   }
 
   return (
@@ -37,10 +36,10 @@ export const SingleTransaction = ({t, onSave}:SingleTransactionProps) => {
       <div className={"grid grid-cols-2 gap-4"}>
         <div>
           <h2 className={"text-xl"}>Category</h2>
-          <CategoryDropdown onChange={setCategory} value={categories?.find(c => c.id === t.categoryId) || -1}/>
+          <CategoryDropdown onChange={setCategory} value={categories?.find(c => c.id === t.categoryId)?.id || -1}/>
         </div>
         <div>
-          <button className={"btn-green float-right"} onClick={saveTransaction}>Save</button>
+          <button className={"btn-green float-right"} onClick={saveTransaction} disabled={category === -1}>Save</button>
         </div>
       </div>
     </div>);

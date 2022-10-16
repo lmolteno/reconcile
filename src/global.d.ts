@@ -1,12 +1,5 @@
 declare global {
 
-  interface UnmergedData {
-    name: string,
-    columns: string[],
-    data: Transaction[],
-    rawData: any[],
-  }
-
   interface Transaction {
     id?: number;
     amount: number;
@@ -16,6 +9,7 @@ declare global {
     inParticulars: string;
     outParticulars: string;
     categoryId?: number;
+    fileId: number;
   }
 
   interface Category {
@@ -30,6 +24,13 @@ declare global {
     name: string;
     regex: string;
     categoryId: number;
+  }
+
+  interface ImportedFile {
+    id?: number;
+    name: string;
+    rawData: any[];
+    columns: string[];
   }
 }
 

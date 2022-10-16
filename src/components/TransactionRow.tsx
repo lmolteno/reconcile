@@ -1,4 +1,4 @@
-import {format} from "fecha";
+import {formatDate} from "../utils";
 
 interface TransactionRowProps {
   data: Transaction,
@@ -7,8 +7,8 @@ interface TransactionRowProps {
 
 export const TransactionRow = ({data, color}:TransactionRowProps) => {
   return (
-    <tr className={color ? undefined : "odd:bg-slate-50 even:bg-white"} style={{backgroundColor: color}}>
-      <td>{data.date && format(data.date, 'YY-MM-dd')}</td>
+    <tr className={color ? undefined : "odd:bg-slate-50 even:bg-white"} style={{backgroundColor: color}} onClick={() => console.log(data)}>
+      <td>{data.date && formatDate(data.date)}</td>
       <td>{data.description}</td>
       <td className={"text-right"}>{data.amount.toFixed(2)}</td>
       <td className={"text-right"}>{data.balance?.toFixed(2)}</td>
