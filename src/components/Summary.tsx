@@ -1,7 +1,7 @@
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
 import {Stage, Layer, Rect, Text, Line} from 'react-konva';
-import {MutableRefObject, useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect} from "react";
 import {useResizeDetector} from "react-resize-detector";
 
 interface BarGraph {
@@ -15,6 +15,7 @@ export const Summary = () => {
   const rules: Rule[] = useLiveQuery(() => db.rules.toArray()) || [];
   const categories: Category[] = useLiveQuery(() => db.categories.toArray()) || [];
   const transactions = useLiveQuery(() => db.transactions.orderBy('date').toArray()) || [];
+  const { width, height, ref } = useResizeDetector();
 
   const [barGraphData, maxVal, minVal] = useCallback(() => {
     const data = categories.map((c): BarGraph => {
@@ -32,40 +33,38 @@ export const Summary = () => {
 
     const max = data.reduce((prev, curr) => Math.max(prev, curr.positive), 0);
     const min = data.reduce((prev, curr) => -Math.max(-prev, -(curr.positive + curr.negative)), 0);
-    return [data, max, min];
+    return [data, max, min] as [BarGraph[], number, number];
   }, [transactions, rules, categories])();
-
-  const canvasRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
-
-  const [height, setHeight] = useState(0);
-  const [width, setWidth] = useState(0);
-
-  const setHeights = () => {
-    setHeight(canvasRef.current?.offsetHeight || 0)
-    setWidth(canvasRef.current?.offsetWidth || 0)
-  }
-
-  useEffect(setHeights, [canvasRef.current?.offsetHeight]);
 
   const barPadding = 20;
   const barHeight = 200;
   const barGraphWidth = 50;
 
-  const toProportion = dollars => (maxVal - dollars) / (maxVal - minVal);
-  const toPixels = dollars => (toProportion(dollars) * barHeight) + barPadding;
+  const toProportion = useCallback((dollars: number) => (maxVal - dollars) / (maxVal - minVal), [maxVal, minVal]);
+  const toPixels = useCallback((dollars: number) => (toProportion(dollars) * barHeight) + barPadding, [maxVal, minVal]);
+
+  const CategoryBarGraph = ({data, barHeight, barWidth, x, y}:CategoryBarGraphProps) => {
+    return (
+      <>
+        <Rect x={x} y={y + toPixels(data.positive)} height={toPixels(0) - toPixels(data.positive)} width={barWidth/2} fill={'#25a225'}/>
+        <Rect x={x + barWidth/2} y={y + toPixels(data.positive + data.negative)} height={toPixels(0) - toPixels(data.negative)} width={barWidth/2} fill={'#bd2727'}/>
+        <Text text={data.name} x={x - barWidth/2} y={y + barHeight + 5} width={barWidth*2} align={'center'}/>
+      </>
+    );
+  };
 
   return (<div className={"content-container"}>
-    <div ref={canvasRef} className={"w-full"} style={{height: barHeight + 2*barPadding}} onresize={setHeights}>
+    <div ref={ref} className={"w-full"} style={{height: barHeight + 2*barPadding}}>
       <Stage width={width} height={height}>
-        <Layer>
-          <Line points={[barPadding, toPixels(0), width-barPadding, toPixels(0)]} stroke={'#989898'} strokeWidth={0.5}/>
+        <Layer x={barPadding} y={barPadding}>
+          <Line points={[0, toPixels(0), (width || 0)-2*barPadding, toPixels(0)]} stroke={'#989898'} strokeWidth={0.5}/>
         </Layer>
         <Layer>
           {barGraphData.map((b, idx) => <CategoryBarGraph
             key={idx}
-            x={idx * ((width - 2*barPadding - barGraphWidth)/(barGraphData.length-1)) + barPadding} y={barPadding}
-            width={barGraphWidth} height={barHeight}
-            data={b} minVal={minVal} maxVal={maxVal} />)}
+            x={idx * (((width || 0) - 2*barPadding - barGraphWidth)/(barGraphData.length-1)) + barPadding} y={barPadding}
+            barWidth={barGraphWidth} barHeight={barHeight}
+            data={b} />)}
         </Layer>
       </Stage>
     </div>
@@ -74,23 +73,8 @@ export const Summary = () => {
 
 interface CategoryBarGraphProps {
   data: BarGraph;
-  minVal: number;
-  maxVal: number;
-  width: number;
-  height: number;
+  barWidth: number;
+  barHeight: number;
   x: number;
   y: number;
 }
-
-const CategoryBarGraph = ({data, minVal, maxVal, height, width, x, y}:CategoryBarGraphProps) => {
-  const toProportion = dollars => (maxVal - dollars) / (maxVal - minVal);
-  const toPixels = dollars => toProportion(dollars) * height;
-  return (
-    <>
-      <Rect x={x} y={y + toPixels(data.positive)} height={toPixels(0) - toPixels(data.positive)} width={width/2} fill={'#25a225'}/>
-      <Rect x={x + width/2} y={y + toPixels(data.positive + data.negative)} height={toPixels(0) - toPixels(data.negative)} width={width/2} fill={'#bd2727'}/>
-      <Text text={data.name} x={x - width/2} y={y + height + 5} width={width*2} align={'center'}/>
-      {/*<Text text={`+${}`} x={x - width/2} y={y + height + 5} width={width*2} align={'center'}/>*/}
-    </>
-  );
-};

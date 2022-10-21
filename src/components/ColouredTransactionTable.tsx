@@ -24,7 +24,7 @@ export const ColouredTransactionTable = () => {
             const matchingRule = rules.find(r => t.description?.match(new RegExp(r.regex, 'g')));
             const matchingCategoryId = matchingRule?.categoryId || t.categoryId;
             const categoryColor = categories.find(c => c.id === matchingCategoryId)?.color;
-            return <TransactionRow key={idx} data={t} color={categoryColor + '88' || ''}/>
+            return <TransactionRow key={idx} data={t} color={categoryColor + '88' || ''} />
           })}
           </tbody>
         </table>

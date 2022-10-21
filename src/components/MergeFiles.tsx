@@ -44,12 +44,20 @@ export const MergeFiles = () => {
     setCurrentFileId(nextFile?.id || currentFileId);
   };
 
+  const unsaveFile = async () => {
+    const numberOfTransactions = filteredTransactions.length;
+    const affectedRows = await db.transactions
+      .where("fileId").equals(currentFileId!)
+      .delete();
+
+    toast.success(`Removed ${affectedRows} transactions`);
+  };
+
   return (
     <div className={"content-container space-y-5"}>
       <div className={"flex justify-between"}>
         <div className={"flex space-x-5"}>
           <FilesDropdown onChange={setCurrentFileId} value={currentFileId} />
-          {/*<h2 className={"text-xl"}>{file?.name}</h2>*/}
           <h2 className={"text-xl text-secondary"}>{filteredTransactions.length} Transactions</h2>
         </div>
         <div className={"flex space-x-3"}>
@@ -59,12 +67,14 @@ export const MergeFiles = () => {
             inputMode={"text"}
             value={excludeTransactions}
             onChange={e => setExcludeTransactions(e.target.value)}
-            className={"border-2 border-middleBlue"} />
+            className={"border-2 border-middleBlue"}
+            disabled={savedFileIds.includes(currentFileId!)}/>
         </div>
       </div>
       <TransactionTable data={filteredTransactions} />
       <div>
-        <button className={"btn-green float-right"} disabled={savedFileIds.includes(file?.id || -1)} onClick={saveFile}>Save</button>
+        <button className={"btn-green mx-2 float-right"} disabled={savedFileIds.includes(file?.id || -1)} onClick={saveFile}>Import</button>
+        <button className={"btn-green mx-2 float-right"} disabled={!savedFileIds.includes(file?.id || -1)} onClick={unsaveFile}>Unimport</button>
       </div>
     </div>
   )

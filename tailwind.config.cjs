@@ -4,7 +4,13 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}"
   ],
   theme: {
+    container: {
+      center: true
+    },
     extend: {
+      gridTemplateColumns: {
+        'fill-40': 'repeat(auto-fill, minmax(10rem, 1fr))',
+      },
       fontFamily: {
         barlow: ["Barlow", "sans-serif"]
       },

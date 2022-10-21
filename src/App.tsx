@@ -53,26 +53,13 @@ const App = () => {
 
   return (
     <>
-      <div className="container min-h-screen mx-auto flex flex-col py-5">
+      <div className="container max-w-screen-xl min-h-screen mx-auto flex flex-col py-5">
         <div className="container my-auto flex flex-col align-content-center space-y-8">
-          <h1 className={`text-center text-8xl font-barlow text-jet transition-margin duration-500 ease-in-out`}>
+          <h1 className={`text-center text-8xl font-barlow text-jet pb-5`}>
             RECONCILE
           </h1>
-          {[!importedFiles?.length && !pastDataExists ?
-            <h2 className="text-2xl text-center transition-all">A simple tool for reconciling and categorising
-              transactions.</h2> :
-            <FileList forUpload={"csv-upload"}/>,
-            <MergeFiles/>,
-            <Categories/>,
-            <Rules/>,
-            <ReconcileTransactions/>,
-            <ColouredTransactionTable/>,
-            <Summary/>
-          ][step]
-          }
-
           {importedFiles?.length ?
-            <div className={"grid grid-cols-7 gap-4"}>
+            <div className={"grid grid-cols-fill-40 gap-4"}>
               <button className="btn-green w-100" onClick={() => setStep(Step.UPLOAD)}
                       disabled={step == Step.UPLOAD}>Upload Files
               </button>
@@ -94,9 +81,21 @@ const App = () => {
               <button className="btn-green w-100" onClick={() => setStep(Step.SUMMARY)}
                       disabled={step == Step.SUMMARY || !pastDataExists}>Summary
               </button>
-            </div> :
-            <label htmlFor="csv-upload" className="btn-green cursor-pointer">Upload your statements</label>
+            </div> : <><h2 className="text-2xl text-center transition-all">A simple tool for reconciling and categorising
+              transactions.</h2>
+            <label htmlFor="csv-upload" className="btn-green cursor-pointer">Upload your statements</label></>
           }
+          {[!importedFiles?.length && !pastDataExists ? <></> :
+            <FileList forUpload={"csv-upload"}/>,
+            <MergeFiles/>,
+            <Categories/>,
+            <Rules/>,
+            <ReconcileTransactions/>,
+            <ColouredTransactionTable/>,
+            <Summary/>
+          ][step]
+          }
+
           <input onChange={handleFileChange}
                  type="file"
                  id="csv-upload"

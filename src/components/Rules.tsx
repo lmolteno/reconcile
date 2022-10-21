@@ -2,11 +2,8 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
 import {FaPlus, FaTrash} from "react-icons/fa";
 import {useState} from "react";
-import {genRandomColour} from "../utils";
 import {TransactionTable} from "./TransactionTable";
 import {CategoryDropdown} from "./CategoryDropdown";
-import {Simulate} from "react-dom/test-utils";
-import invalid = Simulate.invalid;
 
 export const Rules = () => {
   const [newRuleName, setNewRuleName] = useState("");
@@ -54,7 +51,7 @@ export const Rules = () => {
         </div>
         )
       })}
-      <div className={"container flex space-x-5 justify-between p-3"}>
+      <div className={"container flex space-x-5 justify-between py-3"}>
         <input
           type="text"
           inputMode="text"
@@ -63,6 +60,7 @@ export const Rules = () => {
           value={newRuleName}
           onChange={e => setNewRuleName(e.target.value)}
           onKeyDown={async (e) => {if (e.key === 'Enter') await addRule()}} />
+        <p className={"my-auto"}>matching</p>
         <input
           type="text"
           inputMode="text"
@@ -71,6 +69,7 @@ export const Rules = () => {
           value={newRuleRegex}
           onChange={e => setNewRuleRegex(e.target.value)}
           onKeyDown={async (e) => {if (e.key === 'Enter') await addRule()}} />
+        <p className={"my-auto"}>to</p>
         <CategoryDropdown onChange={setNewRuleCategory} />
         <button onClick={addRule} disabled={invalidRegexp} className={"pr-2"}><FaPlus className={"fill-jet"}/></button>
       </div>
