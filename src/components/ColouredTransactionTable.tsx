@@ -1,11 +1,15 @@
 import {TransactionRow} from "./TransactionRow";
 import {db} from "../db";
 import {useLiveQuery} from "dexie-react-hooks";
+import {useContext} from "react";
+import {AppContext} from "../contexts/AppContext";
+import {Step} from "../App";
 
 export const ColouredTransactionTable = () => {
   const rules: Rule[] = useLiveQuery(() => db.rules.toArray()) || [];
   const categories: Category[] = useLiveQuery(() => db.categories.toArray()) || [];
   const transactions = useLiveQuery(() => db.transactions.orderBy('date').toArray()) || [];
+  const { setTransactionId, setStep } = useContext(AppContext);
 
   return (
     <div className={"content-container"}>
@@ -24,7 +28,10 @@ export const ColouredTransactionTable = () => {
             const matchingRule = rules.find(r => t.description?.match(new RegExp(r.regex, 'g')));
             const matchingCategoryId = matchingRule?.categoryId || t.categoryId;
             const categoryColor = categories.find(c => c.id === matchingCategoryId)?.color;
-            return <TransactionRow key={idx} data={t} color={categoryColor + '88' || ''} />
+            return <TransactionRow key={idx} data={t} color={categoryColor + '88' || ''} onClick={() => {
+              setStep(Step.RECONCILE);
+              setTransactionId(t.id);
+            }}/>
           })}
           </tbody>
         </table>

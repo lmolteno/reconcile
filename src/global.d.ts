@@ -1,3 +1,5 @@
+import {Step} from "./App";
+
 declare global {
 
   interface Transaction {
@@ -31,6 +33,13 @@ declare global {
     name: string;
     rawData: any[];
     columns: string[];
+  }
+
+  interface AppContext {
+    transactionId?: number,
+    setTransactionId: (newTId?: number) => void,
+    step: Step,
+    setStep: (newStep: Step) => void
   }
 }
 

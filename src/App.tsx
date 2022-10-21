@@ -10,11 +10,12 @@ import {Rules} from "./components/Rules";
 import {ColouredTransactionTable} from "./components/ColouredTransactionTable";
 import {Summary} from "./components/Summary";
 import {useLiveQuery} from "dexie-react-hooks";
-import {cssTransition, Slide, toast, ToastContainer} from "react-toastify";
+import {cssTransition, ToastContainer} from "react-toastify";
+import {AppContext} from "./contexts/AppContext";
 
 import 'react-toastify/dist/ReactToastify.css';
 
-enum Step {
+export const enum Step {
   UPLOAD,
   MANAGE,
   CATEGORIES,
@@ -25,7 +26,8 @@ enum Step {
 }
 
 const App = () => {
-  const [step, setStep] = useState<Step>(Step.UPLOAD);
+  const [step, setStep] = useState(Step.UPLOAD);
+  const [transactionId, setTransactionId] = useState<number>();
   const pastDataExists = useLiveQuery(() => db.transactions.count());
   const importedFiles = useLiveQuery(() => db.files.toArray()) || [];
 
@@ -52,7 +54,7 @@ const App = () => {
   }
 
   return (
-    <>
+    <AppContext.Provider value={{ step, setStep, transactionId, setTransactionId }}>
       <div className="container max-w-screen-xl min-h-screen mx-auto flex flex-col py-5">
         <div className="container my-auto flex flex-col align-content-center space-y-8">
           <h1 className={`text-center text-8xl font-barlow text-jet pb-5`}>
@@ -99,7 +101,10 @@ const App = () => {
           <input onChange={handleFileChange}
                  type="file"
                  id="csv-upload"
-                 className="hidden"/>
+                 className="hidden"
+                 multiple
+                 accept={'.csv'}
+          />
         </div>
       </div>
       <ToastContainer
@@ -107,7 +112,7 @@ const App = () => {
         autoClose={1000}
         hideProgressBar={true}
       />
-    </>
+    </AppContext.Provider>
   )
 }
 
