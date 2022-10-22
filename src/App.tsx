@@ -25,10 +25,17 @@ export const enum Step {
   SUMMARY
 }
 
+export const enum AmountFiltering {
+  All = 0,
+  Credit = 1,
+  Debit = -1
+}
+
 const App = () => {
   const [step, setStep] = useState(Step.UPLOAD);
   const [transactionId, setTransactionId] = useState<number>();
   const [categoryId, setCategoryId] = useState<number>();
+  const [amountFiltering, setAmountFiltering] = useState<AmountFiltering>(AmountFiltering.All);
   const pastDataExists = useLiveQuery(() => db.transactions.count());
   const importedFiles = useLiveQuery(() => db.files.toArray()) || [];
 
@@ -55,7 +62,7 @@ const App = () => {
   }
 
   return (
-    <AppContext.Provider value={{ step, setStep, transactionId, setTransactionId, categoryId, setCategoryId }}>
+    <AppContext.Provider value={{ step, setStep, transactionId, setTransactionId, categoryId, setCategoryId, amountFiltering, setAmountFiltering }}>
       <div className="container max-w-screen-xl min-h-screen mx-auto flex flex-col py-5">
         <div className="container flex flex-col align-content-center space-y-8">
           <h1 className={`text-center text-8xl font-barlow text-jet pb-5`}>

@@ -1,34 +1,35 @@
 import {TransactionRow} from "./TransactionRow";
 import {db} from "../db";
 import {useLiveQuery} from "dexie-react-hooks";
-import {useContext, useState} from "react";
+import {useContext} from "react";
 import {AppContext} from "../contexts/AppContext";
-import {Step} from "../App";
+import {AmountFiltering, Step} from "../App";
 import {CategoryDropdown} from "./CategoryDropdown";
 
-const enum AmountFiltering {
-  All = 0,
-  Credit = 1,
-  Debit = -1
-}
 
 export const ColouredTransactionTable = () => {
-  const {setTransactionId, setStep, categoryId, setCategoryId} = useContext(AppContext);
-  const [amountFiltering, setAmountFiltering] = useState<AmountFiltering>(AmountFiltering.All);
+  const {
+    setTransactionId,
+    setStep,
+    categoryId,
+    setCategoryId,
+    amountFiltering,
+    setAmountFiltering
+  } = useContext(AppContext);
 
   const transactions = useLiveQuery(() =>
-    db.transactions
-      .orderBy('date')
-      .filter(t => (t.amount * amountFiltering) >= 0)
-      .toArray(),
+      db.transactions
+        .orderBy('date')
+        .filter(t => (t.amount * amountFiltering) >= 0)
+        .toArray(),
     [amountFiltering]) || [];
 
   const categories: Category[] = useLiveQuery(() => db.categories.toArray()) || [];
 
   const rules: Rule[] = useLiveQuery(() =>
-    db.rules
-      .filter(r => r.categoryId === categoryId || !categoryId)
-      .toArray(),
+      db.rules
+        .filter(r => r.categoryId === categoryId || !categoryId)
+        .toArray(),
     [categoryId]) || [];
 
   return (
@@ -42,14 +43,22 @@ export const ColouredTransactionTable = () => {
           </div>
           <div className={"flex space-x-2"}>
             {/* @ts-ignore */}
-            <div onChange={e => setAmountFiltering(e.target.value)}>
-              <input type={"radio"} id={"debit"} name={"amountFiltering"} value={AmountFiltering.Debit} />
-              <label htmlFor={"debit"}>Debit</label>
-              <input type={"radio"} id={"credit"} name={"amountFiltering"} value={AmountFiltering.Credit} />
-              <label htmlFor={"credit"}>Credit</label>
-              <input type={"radio"} id={"all"} name={"amountFiltering"} value={AmountFiltering.All} />
+            <form className={"flex space-x-2"}>
+              <input type={"radio"} id={"debit"} name={"amountFiltering"}
+                     value={AmountFiltering.Debit} checked={amountFiltering === AmountFiltering.Debit}
+                     onChange={() => setAmountFiltering(AmountFiltering.Debit)}/>
+              <label htmlFor={"debit"} className={"pr-2 border-r-2"}>Debit</label>
+
+              <input type={"radio"} id={"credit"} name={"amountFiltering"}
+                     value={AmountFiltering.Credit} checked={amountFiltering === AmountFiltering.Credit}
+                     onChange={() => setAmountFiltering(AmountFiltering.Credit)}/>
+              <label htmlFor={"credit"} className={"pr-2 border-r-2"}>Credit</label>
+
+              <input type={"radio"} id={"all"} name={"amountFiltering"}
+                     value={AmountFiltering.All} checked={amountFiltering === AmountFiltering.All}
+                     onChange={() => setAmountFiltering(AmountFiltering.All)}/>
               <label htmlFor={"all"}>All</label>
-            </div>
+            </form>
           </div>
         </div>
         <div className={"block h-96 overflow-y-scroll"}>

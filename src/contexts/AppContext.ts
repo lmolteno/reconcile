@@ -6,5 +6,7 @@ export const AppContext = React.createContext<AppContext>({
   setTransactionId: () => {},
   transactionId: undefined,
   setCategoryId: () => {},
-  categoryId: undefined
+  categoryId: undefined,
+  amountFiltering: 0,
+  setAmountFiltering: () => {}
 });

@@ -1,4 +1,4 @@
-import {Step} from "./App";
+import {AmountFiltering, Step} from "./App";
 
 declare global {
 
@@ -42,6 +42,8 @@ declare global {
     setStep: (newStep: Step) => void,
     categoryId?: number
     setCategoryId: (newCId?: number) => void,
+    amountFiltering: AmountFiltering
+    setAmountFiltering: (newAmF: AmountFiltering) => void,
   }
 }
 

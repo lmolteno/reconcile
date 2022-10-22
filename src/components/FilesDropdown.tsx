@@ -1,6 +1,6 @@
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 
 interface FilesDropdownProps {
   onChange: (fId: number) => void,
@@ -15,6 +15,9 @@ export const FilesDropdown = ({onChange, value}:FilesDropdownProps) => {
     setVal(newVal);
   }
   const [val, setVal] = useState(value);
+
+  useEffect(() => setVal(value), [value]);
+
   return (
     <select onChange={handleChange} value={val}>
       {files.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
