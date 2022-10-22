@@ -66,43 +66,46 @@ export const Summary = () => {
     <fieldset className={"content-container"}>
       <legend>Summary</legend>
     <div className={"block max-h-96 overflow-y-scroll"}>
-    <table className={"transtable w-full border-2 border-middleBlue"} cellPadding={4}>
+    <table className={"persian-table w-full border-2 border-middleBlue"} cellPadding={4}>
       <thead className={"bg-persian text-snow h-8"}>
       <tr className={"text-left"}>
         <th>Category</th>
-        <th>In</th>
-        <th>In Proportion</th>
-        <th>Out</th>
-        <th>Out Proportion</th>
-        <th>Net</th>
-        <th>Net Proportion</th>
+        <th className={"text-right"}>In</th>
+        <th className={"text-right"}>In Proportion</th>
+        <th className={"text-right"}>Out</th>
+        <th className={"text-right"}>Out Proportion</th>
+        <th className={"text-right"}>Net</th>
+        <th className={"text-right"}>Net Proportion</th>
       </tr>
     </thead>
       <tbody>
       {data.map((d, idx) => {
         const color = d.color + '88';
         return (<tr key={idx}
-                    className={(color ? "" : "odd:bg-slate-50 even:bg-white") + "hover:cursor-pointer"}
-                    onClick={() => {setCategoryId(d.id); setStep(Step.ALL)}}
+                    className={(color ? "" : "odd:bg-slate-50 even:bg-white") + (d.id ? "hover:cursor-pointer" : "")}
+                    onClick={() => {if (d.id) {setCategoryId(d.id); setStep(Step.ALL)}}}
                     style={{backgroundColor: color}}>
           <td>{d.name}</td>
-          <td>{d.positive.toFixed(2)}</td>
-          <td>{(d.proportionPositive * 100).toFixed(2)}%</td>
-          <td>{d.negative.toFixed(2)}</td>
-          <td>{(d.proportionNegative * 100).toFixed(2)}%</td>
-          <td>{d.net.toFixed(2)}</td>
-          <td>{(d.proportionNet * 100).toFixed(2)}%</td>
+          <td className={"text-right"}>{d.positive.toFixed(2)}</td>
+          <td className={"text-right"}>{(d.proportionPositive * 100).toFixed(2)}%</td>
+          <td className={"text-right"}>{d.negative.toFixed(2)}</td>
+          <td className={"text-right"}>{(d.proportionNegative * 100).toFixed(2)}%</td>
+          <td className={"text-right"}>{d.net.toFixed(2)}</td>
+          <td className={"text-right"}>{(d.proportionNet * 100).toFixed(2)}%</td>
         </tr>)
       })}
-      <tr>
-        <td><strong>Total</strong></td>
-        <td>{totalPositive.toFixed(2)}</td>
-        <td></td>
-        <td>{totalNegative.toFixed(2)}</td>
-        <td></td>
-        <td>{(totalPositive + totalNegative).toFixed(2)}</td>
-      </tr>
       </tbody>
+
+      <tfoot className={"border-slate-500"}>
+        <tr>
+          <td className={""}><strong>Total</strong></td>
+          <td className={"text-right"}>{totalPositive.toFixed(2)}</td>
+          <td className={""}></td>
+          <td className={"text-right"}>{totalNegative.toFixed(2)}</td>
+          <td className={""}></td>
+          <td className={"text-right"}>{(totalPositive + totalNegative).toFixed(2)}</td>
+        </tr>
+      </tfoot>
     </table>
     </div>
     </fieldset>

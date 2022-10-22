@@ -27,11 +27,19 @@ input[type=text] {
     @apply container border-2 border-persian p-2;
 }
 
-.transtable tbody tr td {
+.persian-table {
+    @apply border-collapse
+}
+
+.persian-table tbody tr td {
     @apply px-2
 }
 
-.transtable thead tr th {
+.persian-table tbody tr:not(.table-total) td {
+    @apply px-2 border-y border-slate-100
+}
+
+.persian-table thead tr th {
     @apply px-2
 }
 

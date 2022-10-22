@@ -34,8 +34,8 @@ export const SingleTransaction = ({t}: SingleTransactionProps) => {
     toast.success("Unsaved transaction");
   }
 
-  const matchingRule = useCallback(() => rules.find(r => t.description.match(new RegExp(r.regex, 'g'))), [rules])();
-  const matchingCategory = useCallback(() => categories.find(c => c.id === matchingRule?.categoryId), [categories, matchingRule])();
+  const matchingRule = useCallback(() => rules.find(r => t.description.match(new RegExp(r.regex, 'g'))), [t, rules])();
+  const matchingCategory = useCallback(() => categories.find(c => c.id === matchingRule?.categoryId), [t, categories, matchingRule])();
 
   return (
     <div className={"bg-slate-200 grid grid-cols-1 p-5 divide-y divide-jet"}>
