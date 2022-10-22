@@ -29,7 +29,10 @@ export const FileList = ({forUpload}: FileListProps) => {
         {files?.map((f, idx) => (
           <div key={idx} className={"container flex transition duration-50 hover:bg-slate-100 p-2 justify-between"}>
             <h2 className={"text-xl"}>{f.name}</h2>
-            <FaTrash className={"fill-jet cursor-pointer m-2"} onClick={async () => await removeFile(f.id!)}/>
+            <FaTrash className={"fill-jet cursor-pointer m-2"}
+                     onClick={async () => {
+                       if (confirm("This will remove all transactions from this file, but not rules and categories.")) {await removeFile(f.id!)}
+                     }}/>
           </div>))}
         <div className={"container flex transition duration-50 hover:bg-slate-100 justify-between"}>
           <label htmlFor={forUpload}
