@@ -39,3 +39,7 @@ input[type=text] {
     animation-fill-mode: both;
     animation-duration: 0.3s;
 }
+
+legend {
+    @apply text-2xl px-2
+}

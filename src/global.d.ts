@@ -39,7 +39,9 @@ declare global {
     transactionId?: number,
     setTransactionId: (newTId?: number) => void,
     step: Step,
-    setStep: (newStep: Step) => void
+    setStep: (newStep: Step) => void,
+    categoryId?: number
+    setCategoryId: (newCId?: number) => void,
   }
 }
 

@@ -2,7 +2,7 @@ import './App.css'
 import {ChangeEvent, useState} from "react";
 import Papa from "papaparse";
 import {FileList} from "./components/FileList";
-import {MergeFiles} from "./components/MergeFiles";
+import {ManageFiles} from "./components/ManageFiles";
 import {ReconcileTransactions} from "./components/ReconcileTransactions";
 import {Categories} from "./components/Categories";
 import {db} from "./db";
@@ -28,6 +28,7 @@ export const enum Step {
 const App = () => {
   const [step, setStep] = useState(Step.UPLOAD);
   const [transactionId, setTransactionId] = useState<number>();
+  const [categoryId, setCategoryId] = useState<number>();
   const pastDataExists = useLiveQuery(() => db.transactions.count());
   const importedFiles = useLiveQuery(() => db.files.toArray()) || [];
 
@@ -54,9 +55,9 @@ const App = () => {
   }
 
   return (
-    <AppContext.Provider value={{ step, setStep, transactionId, setTransactionId }}>
+    <AppContext.Provider value={{ step, setStep, transactionId, setTransactionId, categoryId, setCategoryId }}>
       <div className="container max-w-screen-xl min-h-screen mx-auto flex flex-col py-5">
-        <div className="container my-auto flex flex-col align-content-center space-y-8">
+        <div className="container flex flex-col align-content-center space-y-8">
           <h1 className={`text-center text-8xl font-barlow text-jet pb-5`}>
             RECONCILE
           </h1>
@@ -89,7 +90,7 @@ const App = () => {
           }
           {[!importedFiles?.length && !pastDataExists ? <></> :
             <FileList forUpload={"csv-upload"}/>,
-            <MergeFiles/>,
+            <ManageFiles/>,
             <Categories/>,
             <Rules/>,
             <ReconcileTransactions/>,

@@ -6,7 +6,7 @@ import {db} from "../db";
 import {FilesDropdown} from "./FilesDropdown";
 import {toast} from "react-toastify";
 
-export const MergeFiles = () => {
+export const ManageFiles = () => {
   const files = useLiveQuery(() => db.files.toArray()) || [];
   const savedFileIds = useLiveQuery(async () => {
     const transactions = await db.transactions.toArray();
@@ -45,7 +45,6 @@ export const MergeFiles = () => {
   };
 
   const unsaveFile = async () => {
-    const numberOfTransactions = filteredTransactions.length;
     const affectedRows = await db.transactions
       .where("fileId").equals(currentFileId!)
       .delete();
@@ -54,28 +53,32 @@ export const MergeFiles = () => {
   };
 
   return (
-    <div className={"content-container space-y-5"}>
-      <div className={"flex justify-between"}>
-        <div className={"flex space-x-5"}>
-          <FilesDropdown onChange={setCurrentFileId} value={currentFileId} />
-          <h2 className={"text-xl text-secondary"}>{filteredTransactions.length} Transactions</h2>
+    <fieldset className={"content-container"}>
+      <legend>Manage Files</legend>
+      <div className={"flex flex-col space-y-3"}>
+        <div className={"flex justify-between"}>
+          <div className={"flex space-x-5"}>
+            <FilesDropdown onChange={setCurrentFileId} value={currentFileId} />
+            <h2 className={"text-xl text-secondary"}>{filteredTransactions.length} Transactions</h2>
+          </div>
+          <div className={"flex space-x-3"}>
+            <h2 className={"text-xl"}>Reject Transactions Matching:</h2>
+            <input
+              type={"text"}
+              inputMode={"text"}
+              value={excludeTransactions}
+              onChange={e => setExcludeTransactions(e.target.value)}
+              className={"border-2 border-middleBlue"}
+              disabled={savedFileIds.includes(currentFileId!)}
+            />
+          </div>
         </div>
-        <div className={"flex space-x-3"}>
-          <h2 className={"text-xl"}>Reject Transactions Matching:</h2>
-          <input
-            type={"text"}
-            inputMode={"text"}
-            value={excludeTransactions}
-            onChange={e => setExcludeTransactions(e.target.value)}
-            className={"border-2 border-middleBlue"}
-            disabled={savedFileIds.includes(currentFileId!)}/>
+        <TransactionTable data={filteredTransactions} />
+        <div>
+          <button className={"btn-green mx-2 float-right"} disabled={savedFileIds.includes(file?.id || -1)} onClick={saveFile}>Import</button>
+          <button className={"btn-green mx-2 float-right"} disabled={!savedFileIds.includes(file?.id || -1)} onClick={unsaveFile}>Unimport</button>
         </div>
       </div>
-      <TransactionTable data={filteredTransactions} />
-      <div>
-        <button className={"btn-green mx-2 float-right"} disabled={savedFileIds.includes(file?.id || -1)} onClick={saveFile}>Import</button>
-        <button className={"btn-green mx-2 float-right"} disabled={!savedFileIds.includes(file?.id || -1)} onClick={unsaveFile}>Unimport</button>
-      </div>
-    </div>
+      </fieldset>
   )
 }

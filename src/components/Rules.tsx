@@ -36,22 +36,9 @@ export const Rules = () => {
   }
 
   return (
-    <div className={"content-container divide-y-2"}>
-      {rules?.map((r, idx) => {
-        const filteredTransactions = transactions.filter(t => t.description?.match(new RegExp(r.regex, 'g')));
-        const category = categories.find(c => c.id == r.categoryId);
-        if (!category) return;
-        return (
-        <div key={idx} className={"container grid grid-cols-10 transition duration-50 hover:bg-slate-100 p-2 justify-between auto-cols-fr"}>
-          <h2 className={"text-xl col-span-4"}>{r.name}</h2>
-          <h2 className={"text-xl text-secondary col-span-5"}>
-            {filteredTransactions.length} Transactions
-            to <span style={{color: category.color}}>{category.name}</span> ({filteredTransactions.reduce((p, c) => p + c.amount, 0).toFixed(2)})</h2>
-          <button className={"w-6 justify-self-end mr-3"}><FaTrash className={"fill-jet cursor-pointer m-2"} onClick={() => removeRule(r.id)}/></button>
-        </div>
-        )
-      })}
-      <div className={"container flex space-x-5 justify-between py-3"}>
+    <fieldset className={"content-container"}>
+      <legend>Rules</legend>
+      <div className={"flex space-x-5 justify-between pb-3"}>
         <input
           type="text"
           inputMode="text"
@@ -71,9 +58,27 @@ export const Rules = () => {
           onKeyDown={async (e) => {if (e.key === 'Enter') await addRule()}} />
         <p className={"my-auto"}>to</p>
         <CategoryDropdown onChange={setNewRuleCategory} />
-        <button onClick={addRule} disabled={invalidRegexp} className={"pr-2"}><FaPlus className={"fill-jet"}/></button>
+        <button onClick={addRule} disabled={invalidRegexp || !newRuleCategory || !newRuleName.length} className={"pr-2"}><FaPlus className={"fill-jet"}/></button>
       </div>
+
       <TransactionTable data={currentFilteredTransactions} />
-    </div>
+
+      <div className={"flex flex-col divide-y-2 border-t-2 border-persian my-3"}>
+      {rules?.map((r, idx) => {
+        const filteredTransactions = transactions.filter(t => t.description?.match(new RegExp(r.regex, 'g')));
+        const category = categories.find(c => c.id == r.categoryId);
+        if (!category) return;
+        return (
+        <div key={idx} className={"container grid grid-cols-10 transition duration-50 hover:bg-slate-100 p-2 justify-between auto-cols-fr"}>
+          <h2 className={"text-xl col-span-4"}>{r.name}</h2>
+          <h2 className={"text-xl text-secondary col-span-5"}>
+            {filteredTransactions.length} Transactions
+            to <span style={{color: category.color}}>{category.name}</span> ({filteredTransactions.reduce((p, c) => p + c.amount, 0).toFixed(2)})</h2>
+          <button className={"w-6 justify-self-end mr-3"}><FaTrash className={"fill-jet cursor-pointer m-2"} onClick={() => removeRule(r.id)}/></button>
+        </div>
+        )
+      })}
+      </div>
+    </fieldset>
   )
 }
