@@ -27,8 +27,8 @@ export const enum Step {
 
 export const enum AmountFiltering {
   All = 0,
-  Credit = 1,
-  Debit = -1
+  Debit = 1,
+  Credit = -1
 }
 
 const App = () => {
